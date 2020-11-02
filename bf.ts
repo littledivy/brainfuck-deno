@@ -26,7 +26,7 @@ export function parse(code: any) {
       const data = stack.pop();
       stack.top.push(node("Loop", pos, data));
     } else {
-      // ignore comments and white spaces
+      // TODO(littledivy): optionally, preserve comments in AST?
     }
 
     if (c === "\n") {
