@@ -1,0 +1,18 @@
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deno: ["v1.5.1", "nightly"]
+    name: Deno ${{ matrix.deno }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Deno
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: ${{ matrix.deno }}
+      - run: |
+          deno --version
+          deno test
