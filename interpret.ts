@@ -1,16 +1,23 @@
 import { parse } from "./bf.ts";
-// import { optimize } from "./optimizer.mjs";
+import { createIO, Lib } from "./io.ts";
 
 const BUFFER_SIZE = 65536; // 32 * 64 KiB
 
+interface Node {
+  type: string;
+  data: string;
+}
+
 class Interpreter {
-  constructor(lib) {
+  public lib: ReturnType<typeof createIO>;
+  public buffer: Uint32Array;
+  public pointer: number;
+  constructor(lib: ReturnType<typeof createIO>) {
     this.lib = lib;
 
     this.buffer = new Uint32Array(BUFFER_SIZE);
     this.pointer = 0;
 
-    this.run = node => this[node.type](node.data);
   }
 
   increaseBufferSize() {
@@ -18,16 +25,21 @@ class Interpreter {
     buffer.set(this.buffer);
     this.buffer = buffer;
   }
+  
+  run(node: Node) { 
+    // @ts-ignore
+    return this[node.type](node.data) 
+  }
 
-  Program(nodes) {
+  Program(nodes: Node[]) {
     nodes.forEach(this.run);
   }
 
-  Pointer(diff) {
+  Pointer(diff: number) {
     this.pointer += diff;
 
     while (this.pointer >= this.buffer.byteLength) {
-      increaseBufferSize();
+      this.increaseBufferSize();
     }
 
     if (this.pointer < 0) {
@@ -37,7 +49,7 @@ class Interpreter {
     }
   }
 
-  Value(diff) {
+  Value(diff: number) {
     this.buffer[this.pointer] += diff;
   }
 
@@ -45,7 +57,7 @@ class Interpreter {
     this.buffer[this.pointer] = 0;
   }
 
-  Mul({ pointerDiff, valueDiff }) {
+  Mul({ pointerDiff, valueDiff }: { pointerDiff: number; valueDiff: number; }) {
     this.buffer[this.pointer + pointerDiff] +=
       this.buffer[this.pointer] * valueDiff;
   }
@@ -58,7 +70,7 @@ class Interpreter {
     this.lib.putChar(this.buffer[this.pointer]);
   }
 
-  Loop(nodes) {
+  Loop(nodes: Node[]) {
     if (!this.buffer[this.pointer]) return;
 
     let idx = 0;
@@ -74,8 +86,9 @@ class Interpreter {
   }
 }
 
-export function interpret(code, lib) {
+export function interpret(code: string, lib: Lib) {
   const program = parse(code);
-  const interpreter = new Interpreter(lib);
+  const io = createIO(lib);
+  const interpreter = new Interpreter(io);
   interpreter.run(program);
 }

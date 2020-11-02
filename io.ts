@@ -1,8 +1,12 @@
-export function createIO({ input }) {
+export interface Lib {
+  input?: string;
+}
+
+export function createIO({ input }: Lib) {
     let i = 0;
     return {
       getChar() {
-        const char = input[i];
+        const char = input ? input[i] : null;
         if (char) {
           i++;
           return char.charCodeAt(0);
@@ -10,8 +14,9 @@ export function createIO({ input }) {
           return 0;
         }
       },
-      putChar(char) {
-        console.log(String.fromCharCode(char));
+      putChar(char: number) {
+        // @ts-ignore
+        Deno.core.print(String.fromCharCode(char));
       }
     };
   }

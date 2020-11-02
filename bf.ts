@@ -1,10 +1,10 @@
 import { Stack } from "./stack.ts";
 
-export function node(type, pos, data = null) {
+export function node(type: string, pos: number[], data?: any) {
   return { type, data, pos: [...pos] };
 }
 
-export function parse(code) {
+export function parse(code: any) {
   const stack = new Stack();
 
   stack.push([]); // top-level sequence

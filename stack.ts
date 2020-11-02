@@ -1,4 +1,5 @@
 export class Stack {
+    arr: any[];
     constructor() {
       this.arr = [];
     }
@@ -11,7 +12,7 @@ export class Stack {
       return this.arr[this.arr.length - 1];
     }
   
-    push(el) {
+    push(el: any) {
       this.arr.push(el);
     }
   
